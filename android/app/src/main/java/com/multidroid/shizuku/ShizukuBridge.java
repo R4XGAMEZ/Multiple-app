@@ -106,9 +106,7 @@ public class ShizukuBridge {
     public static void clearProxy() {
         execCommand("settings delete global http_proxy");
     }
-}
 
-    // RAM info
     public static long[] getRamInfo() {
         try {
             String result = execCommand("cat /proc/meminfo");
@@ -124,3 +122,4 @@ public class ShizukuBridge {
             return new long[]{0, 0};
         }
     }
+}

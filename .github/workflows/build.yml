@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -18,16 +19,30 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.29.3'
           channel: 'stable'
           cache: true
 
-      - run: flutter pub get
+      - name: Flutter pub get
+        run: flutter pub get
 
-      - run: flutter build apk --release --split-per-abi
+      - name: Generate Gradle wrapper and resources
+        run: |
+          flutter create --org com.multidroid --project-name tempproject /tmp/tempproject
+          cp -r /tmp/tempproject/android/gradle android/
+          cp /tmp/tempproject/android/gradlew android/
+          cp /tmp/tempproject/android/gradlew.bat android/
+          chmod +x android/gradlew
+          cp /tmp/tempproject/android/gradle.properties android/
+          cp -rn /tmp/tempproject/android/app/src/main/res/. android/app/src/main/res/
 
-      - uses: actions/upload-artifact@v4
+      - name: Build APK
+        run: flutter build apk --release --verbose 2>&1
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
-          name: multidroid-apks
-          path: build/app/outputs/flutter-apk/*-release.apk
+          name: multidroid-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
           retention-days: 30

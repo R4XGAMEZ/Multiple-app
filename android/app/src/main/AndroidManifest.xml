@@ -1,30 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- ── Existing permissions ─────────────────────────── -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
-    <!-- ── Phase 4: Audio volume control ──────────────────── -->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-
-    <!-- ── Phase 4: Proxy / Network settings via Shizuku ──── -->
-    <!-- WRITE_SECURE_SETTINGS is granted via Shizuku, not declared here -->
-    <!-- But we declare the intent so Shizuku knows to grant it -->
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-
-    <!-- ── Phase 4: Macro screen capture ──────────────────── -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
-
-    <!-- ── Shizuku ─────────────────────────────────────────── -->
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
-
-    <!-- ── Accessibility service ──────────────────────────── -->
-    <!-- No extra permission needed — declared via <service> tag below -->
 
     <application
         android:label="MultiDroid"
@@ -34,7 +20,6 @@
         android:extractNativeLibs="false"
         android:fullBackupContent="false">
 
-        <!-- Flutter Main Activity -->
         <activity
             android:name="com.multidroid.app.MainActivity"
             android:exported="true"
@@ -55,7 +40,6 @@
             </intent-filter>
         </activity>
 
-        <!-- ── Phase 4: Accessibility Service ─────────────── -->
         <service
             android:name="com.multidroid.accessibility.MultiDroidAccessibilityService"
             android:exported="true"
@@ -69,10 +53,15 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
-        <!-- Flutter provider meta-data -->
-        <meta-data
-            android:name="flutterEmbedding"
-            android:value="2" />
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:multiprocess="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
+        <meta-data android:name="flutterEmbedding" android:value="2" />
 
     </application>
 </manifest>
