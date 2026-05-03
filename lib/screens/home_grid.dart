@@ -95,7 +95,6 @@ class HomeGridScreen extends StatelessWidget {
         ),
         // Settings
         IconButton(
-          onPressed: () {},
           icon: const Icon(Icons.settings, color: Color(0xFF888888)),
           onPressed: () => Navigator.push(context,
               MaterialPageRoute(builder: (_) => const SettingsScreen())),
