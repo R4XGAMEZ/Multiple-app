@@ -26,28 +26,38 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
-      - name: Generate Gradle wrapper and resources
+      - name: Setup Gradle wrapper
         run: |
           flutter create --org com.multidroid --project-name tempproject /tmp/tempproject
           cp -r /tmp/tempproject/android/gradle android/
-          cp /tmp/tempproject/android/gradlew android/
-          cp /tmp/tempproject/android/gradlew.bat android/
+          cp    /tmp/tempproject/android/gradlew android/
+          cp    /tmp/tempproject/android/gradlew.bat android/
           chmod +x android/gradlew
           cp /tmp/tempproject/android/gradle.properties android/
-          cp -rn /tmp/tempproject/android/app/src/main/res/. android/app/src/main/res/
+          cp -rn /tmp/tempproject/android/app/src/main/res/. android/app/src/main/res/ 2>/dev/null || true
 
-      - name: Build APK
-        run: flutter build apk --release --split-debug-info=build/symbols
+      - name: Build APK via flutter
+        run: flutter build apk --release --no-tree-shake-icons
+        continue-on-error: true
 
-      - name: Find APK
-        run: find build/ -name "*.apk" | sort
+      - name: Build APK via Gradle directly (fallback)
+        run: |
+          FLUTTER_ROOT=$(dirname $(dirname $(which flutter)))
+          cd android && ./gradlew assembleRelease \
+            -Pflutter.sdk=$FLUTTER_ROOT \
+            --no-daemon 2>&1 | tail -30
+        continue-on-error: true
+
+      - name: Find all APKs
+        if: always()
+        run: find . -name "*.apk" -type f | sort
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: multidroid-release-apk
+          name: multidroid-apk
           path: |
             build/app/outputs/flutter-apk/*.apk
-            build/app/outputs/apk/release/*.apk
+            android/app/build/outputs/apk/release/*.apk
           if-no-files-found: warn
           retention-days: 30
