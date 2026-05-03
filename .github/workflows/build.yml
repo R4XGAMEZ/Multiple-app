@@ -36,19 +36,18 @@ jobs:
           cp /tmp/tempproject/android/gradle.properties android/
           cp -rn /tmp/tempproject/android/app/src/main/res/. android/app/src/main/res/
 
-      - name: Show Gradle error detail
-        run: |
-          cd android
-          ./gradlew assembleRelease --stacktrace 2>&1 | grep -E "error:|FAILURE:|Exception in thread|> Task|Caused by:|cannot find symbol|package .* does not exist|error: " | head -80
-        continue-on-error: true
-
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --split-debug-info=build/symbols
+
+      - name: Find APK
+        run: find build/ -name "*.apk" | sort
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: multidroid-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: error
+          path: |
+            build/app/outputs/flutter-apk/*.apk
+            build/app/outputs/apk/release/*.apk
+          if-no-files-found: warn
           retention-days: 30
