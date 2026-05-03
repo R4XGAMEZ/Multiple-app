@@ -527,4 +527,11 @@ class AppState extends ChangeNotifier {
     SharedPreferences.getInstance().then(
         (p) => p.setInt('performance_mode', mode.index));
   }
+  Future<void> clearAllProxies() async {
+    for (final inst in instances) {
+      inst.proxy = null;
+    }
+    await BridgeService.clearAllProxies();
+    notifyListeners();
+  }
 }
